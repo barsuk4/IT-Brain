@@ -1,5 +1,7 @@
 import re
 import pandas as pd
+import datetime
+import sqlite3
 
 # Читаємо прейскурант з файлу
 with open("прейскурант.txt", "r", encoding="utf-8") as file:
@@ -60,6 +62,34 @@ for line in lines:
 
 # Створюємо DataFrame зі зібраних даних
 df = pd.DataFrame({"Категорія": categories, "Страва": products, "Ціна, грн": prices, "Одиниця вимірювання": units})
+
+# Підключаємося до бази даних
+connection = sqlite3.connect("prices.db")
+cursor = connection.cursor()
+
+# Створюємо таблицю для даних
+cursor.execute("""
+    CREATE TABLE IF NOT EXISTS price_list (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        category TEXT,
+        product TEXT,
+        price TEXT,
+        unit TEXT,
+        inserted_at TEXT
+        
+    )
+""")
+inserted_at = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+# Вставляємо дані у таблицю
+for index, row in df.iterrows():
+    cursor.execute("INSERT INTO price_list (category, product, price, unit, inserted_at) VALUES (?, ?, ?, ?, ?)",
+                   (row["Категорія"], row["Страва"], row["Ціна, грн"], row["Одиниця вимірювання"],inserted_at))
+
+# Зберігаємо зміни
+connection.commit()
+
+# Закриваємо з'єднання з базою даних
+connection.close()
 
 # Виводимо результат
 print(df)
