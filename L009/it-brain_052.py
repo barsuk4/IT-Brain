@@ -31,10 +31,18 @@ def main():
     word_info = pick_random_word()
     word_to_guess = word_info["word"]
     language = word_info["language"]
-    max_attempts = 10
+
+    while True:
+        max_attempts = input("Введіть кількість спроб для вгадування: ")
+        if max_attempts.isdigit():
+            max_attempts = int(max_attempts)
+            break
+        else:
+            print("Некоректне значення. Введіть ціле число.")
+
     guessed_letters = set()
     correct_letters = set(word_to_guess)
-    
+
     print(f"Вгадайте слово {language}:")
     print(hide_word(word_to_guess, guessed_letters))
 
@@ -68,3 +76,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
