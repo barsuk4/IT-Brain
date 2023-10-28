@@ -1,6 +1,9 @@
 import os
 import psycopg2
+from faker import Faker
+import random
 from datetime import date
+from datetime import timedelta
 
 class DatabaseManager:
     def __init__(self, host, port, dbname, user, password):
@@ -32,11 +35,19 @@ class Users:
         """)
 
     def insert_sample_data(self):
-        for i in range(10):
-            self.db.cursor.execute(f"""
+        fake = Faker('uk_UA')
+        for i in range(10000):
+            first_name = fake.first_name()
+            last_name = fake.last_name()
+            email = str(i) + fake.email()
+            registered_date = date.today() - timedelta(days=i)
+            date_of_birth = date.today() - timedelta(days=(365 * (random.randint(3, 10) * 6)))  # Birth dates within the last 20 years
+            address = fake.address().replace("\n", ", ")
+
+            self.db.cursor.execute("""
                 INSERT INTO users (first_name, last_name, email, registered_date, date_of_birth, address)
-                VALUES ('Ім''я{i}', 'Прізвище{i}', 'email{i}@example.com', '{date.today()}', '1990-01-0{i+1}', 'Адреса{i}');
-            """)
+                VALUES (%s, %s, %s, %s, %s, %s);
+            """, (first_name, last_name, email, registered_date, date_of_birth, address))
 
 # Аналогічно створюємо класи для інших таблиць...
 class Books:
@@ -153,6 +164,7 @@ class Employees:
 # Створили 
 
 def main():
+    random.randint(1, 10)
     HOST = "127.0.0.1"
     PORT = "5432"
     DB_NAME = "library"
@@ -173,15 +185,15 @@ def main():
     db_manager = DatabaseManager(HOST, PORT, DB_NAME, USER, PASSWORD)
     
     # Створення об'єктів класів
-    book = Books(db_manager)
-    book_copies = BookCopies(db_manager)
-    borrow_records = BorrowRecords(db_manager)
-    library_branches = LibraryBranches(db_manager)
-    employees = Employees(db_manager)
+    # book = Books(db_manager)
+    # book_copies = BookCopies(db_manager)
+    # borrow_records = BorrowRecords(db_manager)
+    # library_branches = LibraryBranches(db_manager)
+    # employees = Employees(db_manager)
     users = Users(db_manager)    
 
     # Список об'єктів класів
-    classes_list = [users, library_branches, employees, book, book_copies, borrow_records]
+    classes_list = [users ]#, library_branches, employees, book, book_copies, borrow_records]
 
     # Ініціалізація та заповнення тестовими даними
     for class_obj in classes_list:
