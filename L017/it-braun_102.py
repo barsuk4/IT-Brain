@@ -41,7 +41,7 @@ class Users:
             last_name = fake.last_name()
             email = str(i) + fake.email()
             registered_date = date.today() - timedelta(days=i)
-            date_of_birth = date.today() - timedelta(days=(365 * (random.randint(3, 10) * 6)))  # Birth dates within the last 20 years
+            date_of_birth = date.today() - timedelta(days=(365 * (random.randint(3, 10) * 6)))  # Birth dates within the last 60 years
             address = fake.address().replace("\n", ", ")
 
             self.db.cursor.execute("""
